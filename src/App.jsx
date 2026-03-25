@@ -229,7 +229,7 @@ const styles = `
   .folder-row:hover { background: var(--surface2); color: var(--text); }
   .folder-row.selected { color: var(--accent); }
   .folder-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .folder-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .folder-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
   .folder-count {
     font-size: 0.65rem; background: var(--surface3);
     padding: 1px 5px; border-radius: 10px; color: var(--text-dim);
