@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const API = "http://localhost:3001/api/data";
+const API = "https://datacatalog-server-production.up.railway.app/api/data";
 
 async function loadFromServer() {
   try {
@@ -35,6 +35,7 @@ const INITIAL_DATASETS = [
     folderId: "f1",
     title: "EPA Air Quality System (AQS)",
     subtitle: "Ambient air pollution monitoring network across the United States",
+    description: "",
     attributes: {
       temporalCoverage: "1980 – Present",
       temporalResolution: "Hourly / Daily",
@@ -55,6 +56,7 @@ const INITIAL_DATASETS = [
     folderId: "f1",
     title: "OpenAQ Global Air Quality",
     subtitle: "Open-source aggregator of real-time air quality data worldwide",
+    description: "",
     attributes: {
       temporalCoverage: "2015 – Present",
       temporalResolution: "Sub-hourly to Daily",
@@ -75,6 +77,7 @@ const INITIAL_DATASETS = [
     folderId: "f2",
     title: "USGS National Water Quality Monitoring Council",
     subtitle: "Integrated federal water quality data across US watersheds",
+    description: "",
     attributes: {
       temporalCoverage: "1950s – Present",
       temporalResolution: "Daily / Grab samples",
@@ -95,6 +98,7 @@ const INITIAL_DATASETS = [
     folderId: "f3",
     title: "Global Forest Watch — Tree Cover Loss",
     subtitle: "Annual global tree cover loss at 30m resolution from Hansen et al.",
+    description: "",
     attributes: {
       temporalCoverage: "2000 – 2023",
       temporalResolution: "Annual",
@@ -191,7 +195,7 @@ const styles = `
     font-family: 'Playfair Display', serif;
     font-size: 1rem; font-weight: 700;
     color: var(--accent); letter-spacing: 0.04em;
-    flex: 1;
+    flex: 1; text-align: left;
   }
   .sidebar-logo span { color: var(--text-dim); font-weight: 400; font-size: 0.75rem; display: block; letter-spacing: 0.02em; margin-top: 1px; }
 
@@ -298,7 +302,7 @@ const styles = `
   .empty-state p { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; text-align: center; max-width: 300px; line-height: 1.6; }
 
   /* DATASET PAGE */
-  .dataset-page { padding: 2.5rem 3rem; max-width: 820px; }
+  .dataset-page { padding: 2.5rem 3rem; max-width: 100%; }
 
   .page-header { margin-bottom: 2rem; }
   .page-tag {
@@ -499,6 +503,19 @@ const styles = `
   .btn-ghost:hover { color: var(--text); border-color: var(--text-dim); }
 
   .meta-row { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: var(--text-dim); display: flex; gap: 1.5rem; margin-top: 1rem; }
+
+  .page-description {
+    font-size: 0.9rem; line-height: 1.75; color: var(--text);
+    font-weight: 300; margin-top: 1.2rem;
+    font-family: 'Source Serif 4', serif;
+  }
+  .page-description textarea {
+    width: 100%; background: var(--surface2); border: 1px solid var(--accent);
+    border-radius: 6px; color: var(--text);
+    font-size: 0.9rem; line-height: 1.75; font-family: 'Source Serif 4', serif;
+    padding: 0.6rem 0.8rem; outline: none; resize: vertical; min-height: 80px;
+  }
+  .description-placeholder { color: var(--text-dim); font-style: italic; cursor: pointer; }
   
   /* Color swatches for folder */
   .color-swatches { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
@@ -565,6 +582,7 @@ export default function App() {
     setDatasets(prev => [...prev, {
       id, folderId: newDsFolderId, title: newDsTitle.trim(),
       subtitle: "Add a subtitle...",
+      description: "",
       attributes: { temporalCoverage: "", temporalResolution: "", spatialCoverage: "", spatialResolution: "" },
       links: [], notes: "Start writing notes here...", tags: [],
       createdAt: new Date().toISOString().split("T")[0],
@@ -615,7 +633,7 @@ export default function App() {
           <div className="sidebar-header">
             <div>
               <div className="sidebar-logo">
-                DataCatalog
+                Data Library
                 <span>research dataset registry</span>
               </div>
               <div style={{
@@ -790,6 +808,7 @@ export default function App() {
 function DatasetPage({ dataset, folder, onChange, fileInputRef, onDelete }) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [editingDescription, setEditingDescription] = useState(false);
   const [editingNotes, setEditingNotes] = useState(false);
   const [editingAttrs, setEditingAttrs] = useState(false);
   const [editingLinks, setEditingLinks] = useState(false);
@@ -872,6 +891,26 @@ function DatasetPage({ dataset, folder, onChange, fileInputRef, onDelete }) {
           <span>Created {dataset.createdAt}</span>
           <span>Updated {dataset.updatedAt}</span>
         </div>
+
+        {/* DESCRIPTION */}
+        {editingDescription ? (
+          <div className="page-description">
+            <textarea
+              value={dataset.description || ""}
+              onChange={e => onChange(ds => ({ ...ds, description: e.target.value }))}
+              onBlur={() => setEditingDescription(false)}
+              placeholder="Write a short description (100–150 words)..."
+              autoFocus
+            />
+          </div>
+        ) : (
+          <div className="page-description" onClick={() => setEditingDescription(true)}>
+            {dataset.description
+              ? dataset.description
+              : <span className="description-placeholder">+ Add a short description...</span>
+            }
+          </div>
+        )}
       </div>
 
       <div className="divider" />
