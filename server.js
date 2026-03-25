@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, existsSync } from "fs";
 import { createServer } from "http";
 
 const app = express();
-const FILE = "./data.json";
+const FILE = "/data/data.json";
 
 app.use(cors());
 app.use(express.json({ limit: "20mb" }));
