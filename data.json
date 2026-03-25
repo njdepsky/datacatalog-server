@@ -1,0 +1,159 @@
+{
+  "folders": [
+    {
+      "id": "f1",
+      "name": "Air Quality",
+      "color": "#7eb8d4"
+    },
+    {
+      "id": "f2",
+      "name": "Water Quality",
+      "color": "#6bcfb0"
+    },
+    {
+      "id": "f3",
+      "name": "Deforestation",
+      "color": "#b8d47e"
+    },
+    {
+      "id": "f1774452441942",
+      "name": "Remote Sensing",
+      "color": "#b8d47e"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "ds1",
+      "folderId": "f1",
+      "title": "EPA Air Quality System (AQS)",
+      "subtitle": "Ambient air pollution monitoring network across the United States",
+      "attributes": {
+        "temporalCoverage": "1980 – Present",
+        "temporalResolution": "Hourly / Daily",
+        "spatialCoverage": "United States",
+        "spatialResolution": "Point (monitoring stations)"
+      },
+      "links": [
+        {
+          "label": "Download Portal",
+          "url": "https://www.epa.gov/aqs"
+        },
+        {
+          "label": "Technical Documentation",
+          "url": "https://www.epa.gov/aqs/aqs-manuals-and-guides"
+        }
+      ],
+      "notes": "## Overview\nThe EPA AQS dataset contains measurements from over 4,000 monitoring stations across the US, Puerto Rico, and the Virgin Islands. Data includes criteria pollutants (PM2.5, PM10, O₃, CO, SO₂, NO₂) and air toxics.\n\n## Key Observations\n- Excellent temporal depth going back to the 1980s\n- Station density varies significantly by region\n- Requires careful handling of data gaps and instrument changes\n\n## Preprocessing Notes\nUse the pre-generated annual summary files for faster loading. The raw hourly files are very large (~5 GB/year for PM2.5 alone).",
+      "tags": [
+        "PM2.5",
+        "ozone",
+        "NOx",
+        "criteria pollutants",
+        "monitoring"
+      ],
+      "createdAt": "2024-11-10",
+      "updatedAt": "2025-02-14"
+    },
+    {
+      "id": "ds2",
+      "folderId": "f1",
+      "title": "OpenAQ Global Air Quality",
+      "subtitle": "Open-source aggregator of real-time air quality data worldwide",
+      "attributes": {
+        "temporalCoverage": "2015 – Present",
+        "temporalResolution": "Sub-hourly to Daily",
+        "spatialCoverage": "Global (100+ countries)",
+        "spatialResolution": "Point (monitoring stations)"
+      },
+      "links": [
+        {
+          "label": "API Documentation",
+          "url": "https://docs.openaq.org"
+        },
+        {
+          "label": "Explorer",
+          "url": "https://explore.openaq.org"
+        }
+      ],
+      "notes": "## Overview\nOpenAQ aggregates data from government air quality monitoring networks worldwide. Free API with generous rate limits.\n\n## Coverage Notes\nCoverage is uneven — very dense in Europe and North America, sparse in Africa and parts of Asia.\n\n## Data Quality\nVariable: data comes directly from national agencies with no harmonization. Units and pollutant definitions can differ across countries.",
+      "tags": [
+        "global",
+        "API",
+        "real-time",
+        "PM2.5",
+        "open data"
+      ],
+      "createdAt": "2024-12-01",
+      "updatedAt": "2025-01-20"
+    },
+    {
+      "id": "ds3",
+      "folderId": "f2",
+      "title": "USGS National Water Quality Monitoring Council",
+      "subtitle": "Integrated federal water quality data across US watersheds",
+      "attributes": {
+        "temporalCoverage": "1950s – Present",
+        "temporalResolution": "Daily / Grab samples",
+        "spatialCoverage": "United States",
+        "spatialResolution": "Watershed / Stream gauge"
+      },
+      "links": [
+        {
+          "label": "Water Quality Portal",
+          "url": "https://www.waterqualitydata.us"
+        },
+        {
+          "label": "USGS NWIS",
+          "url": "https://waterdata.usgs.gov/nwis"
+        }
+      ],
+      "notes": "## Overview\nComprehensive multi-agency dataset combining USGS, EPA, and state agency water quality measurements.\n\n## Parameters\nPhysical (temp, turbidity, flow), chemical (nutrients, metals, organics), and biological indicators.\n\n## Access\nExcellent REST API via the Water Quality Portal. Can filter by state, HUC, parameter, date range.",
+      "tags": [
+        "watershed",
+        "nutrients",
+        "streamflow",
+        "EPA",
+        "USGS"
+      ],
+      "createdAt": "2025-01-15",
+      "updatedAt": "2025-03-10"
+    },
+    {
+      "id": "ds4",
+      "folderId": "f3",
+      "title": "Global Forest Watch — Tree Cover Loss",
+      "subtitle": "Annual global tree cover loss at 30m resolution from Hansen et al.",
+      "attributes": {
+        "temporalCoverage": "2000 – 2023",
+        "temporalResolution": "Annual",
+        "spatialCoverage": "Global",
+        "spatialResolution": "30 m (Landsat)"
+      },
+      "links": [
+        {
+          "label": "GFW Platform",
+          "url": "https://www.globalforestwatch.org"
+        },
+        {
+          "label": "Hansen et al. Paper",
+          "url": "https://doi.org/10.1126/science.1244693"
+        },
+        {
+          "label": "GEE Data Catalog",
+          "url": "https://developers.google.com/earth-engine/datasets/catalog/UMD_hansen_global_forest_change_2023_v1_11"
+        }
+      ],
+      "notes": "## Overview\nThe gold-standard dataset for global deforestation monitoring. Uses Landsat imagery to track annual tree cover gain and loss.\n\n## Key Caveats\n- \"Tree cover loss\" ≠ deforestation: includes plantation harvests, fire, windthrow\n- Definition: ≥30% canopy cover threshold\n- Small patches (<0.09 ha) may be missed\n\n## Recommended Usage\nCombine with land-use data (e.g., PRODES for Brazil, Global Land Cover) to distinguish permanent conversion from temporary disturbance.",
+      "tags": [
+        "Landsat",
+        "Hansen",
+        "30m",
+        "annual",
+        "tropics",
+        "carbon"
+      ],
+      "createdAt": "2024-10-05",
+      "updatedAt": "2025-02-28"
+    }
+  ]
+}
