@@ -1,26 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-const API = "https://datacatalog-server-production.up.railway.app/api/data";
-
-async function loadFromServer() {
-  try {
-    const res = await fetch(API);
-    if (!res.ok) return null;
-    return await res.json();
-  } catch { return null; }
-}
-
-async function saveToServer(data) {
-  try {
-    await fetch(API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-  } catch (e) {
-    console.warn("Save failed — is the server running?", e);
-  }
-}
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 // ─── INITIAL DATA ────────────────────────────────────────────────────────────
 const INITIAL_FOLDERS = [
@@ -531,7 +515,6 @@ export default function App() {
   const [datasets, setDatasets] = useState(INITIAL_DATASETS);
   const [activeDatasetId, setActiveDatasetId] = useState(null);
   const [serverStatus, setServerStatus] = useState("connecting"); // "connecting"|"ok"|"error"
-  const saveTimer = useRef(null);
   const [expandedFolders, setExpandedFolders] = useState(["f1","f2","f3"]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -564,29 +547,55 @@ export default function App() {
     );
   };
 
-  const updateDataset = useCallback((id, updater) => {
-    setDatasets(prev => prev.map(ds => ds.id === id ? { ...updater(ds), updatedAt: new Date().toISOString().split("T")[0] } : ds));
+  const updateDataset = useCallback(async (id, updater) => {
+    setDatasets(prev => {
+      const updated = prev.map(ds => ds.id === id ? { ...updater(ds), updatedAt: new Date().toISOString().split("T")[0] } : ds);
+      const ds = updated.find(d => d.id === id);
+      if (ds) {
+        supabase.from("datasets").upsert({
+          id: ds.id, folder_id: ds.folderId, title: ds.title,
+          subtitle: ds.subtitle, description: ds.description,
+          attributes: ds.attributes, links: ds.links,
+          notes: ds.notes, tags: ds.tags,
+          created_at: ds.createdAt, updated_at: ds.updatedAt,
+        }).then(({ error }) => {
+          if (error) { console.error("Save error:", error); setServerStatus("error"); }
+          else setServerStatus("ok");
+        });
+      }
+      return updated;
+    });
   }, []);
 
-  const addFolder = () => {
+  const addFolder = async () => {
     if (!newFolderName.trim()) return;
     const id = "f" + Date.now();
-    setFolders(prev => [...prev, { id, name: newFolderName.trim(), color: newFolderColor }]);
+    const folder = { id, name: newFolderName.trim(), color: newFolderColor };
+    const { error } = await supabase.from("folders").insert(folder);
+    if (error) { console.error("Error creating folder:", error); return; }
+    setFolders(prev => [...prev, folder]);
     setExpandedFolders(prev => [...prev, id]);
     setModal(null); setNewFolderName(""); setNewFolderColor(FOLDER_COLORS[0]);
   };
 
-  const addDataset = () => {
+  const addDataset = async () => {
     if (!newDsTitle.trim() || !newDsFolderId) return;
     const id = "ds" + Date.now();
-    setDatasets(prev => [...prev, {
-      id, folderId: newDsFolderId, title: newDsTitle.trim(),
-      subtitle: "Add a subtitle...",
-      description: "",
+    const today = new Date().toISOString().split("T")[0];
+    const ds = {
+      id, folder_id: newDsFolderId, title: newDsTitle.trim(),
+      subtitle: "Add a subtitle...", description: "",
       attributes: { temporalCoverage: "", temporalResolution: "", spatialCoverage: "", spatialResolution: "" },
       links: [], notes: "Start writing notes here...", tags: [],
-      createdAt: new Date().toISOString().split("T")[0],
-      updatedAt: new Date().toISOString().split("T")[0],
+      created_at: today, updated_at: today,
+    };
+    const { error } = await supabase.from("datasets").insert(ds);
+    if (error) { console.error("Error creating dataset:", error); return; }
+    setDatasets(prev => [...prev, {
+      id, folderId: newDsFolderId, title: newDsTitle.trim(),
+      subtitle: "Add a subtitle...", description: "",
+      attributes: ds.attributes, links: [], notes: "Start writing notes here...", tags: [],
+      createdAt: today, updatedAt: today,
     }]);
     setActiveDatasetId(id);
     setModal(null); setNewDsTitle(""); setNewDsFolderId("");
@@ -594,27 +603,34 @@ export default function App() {
 
   // Load on mount
   useEffect(() => {
-    loadFromServer().then(data => {
-      if (data && data.folders && data.datasets) {
-        setFolders(data.folders);
-        setDatasets(data.datasets);
-        setExpandedFolders(data.folders.map(f => f.id));
+    async function loadData() {
+      try {
+        const [{ data: fData, error: fErr }, { data: dData, error: dErr }] = await Promise.all([
+          supabase.from("folders").select("*").order("created_at"),
+          supabase.from("datasets").select("*").order("created_at"),
+        ]);
+        if (fErr || dErr) throw fErr || dErr;
+        const loadedFolders = fData.map(f => ({ id: f.id, name: f.name, color: f.color }));
+        const loadedDatasets = dData.map(d => ({
+          id: d.id, folderId: d.folder_id, title: d.title,
+          subtitle: d.subtitle || "", description: d.description || "",
+          attributes: d.attributes || {}, links: d.links || [],
+          notes: d.notes || "", tags: d.tags || [],
+          createdAt: d.created_at, updatedAt: d.updated_at,
+        }));
+        setFolders(loadedFolders);
+        setDatasets(loadedDatasets);
+        setExpandedFolders(loadedFolders.map(f => f.id));
+        setServerStatus("ok");
+      } catch (e) {
+        console.error("Load error:", e);
+        setServerStatus("error");
       }
-      setServerStatus(data === null ? "error" : "ok");
-    });
+    }
+    loadData();
   }, []);
 
-  // Debounced auto-save (500ms after last change)
-  useEffect(() => {
-    if (serverStatus === "connecting") return;
-    clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
-      saveToServer({ folders, datasets })
-        .then(() => setServerStatus("ok"))
-        .catch(() => setServerStatus("error"));
-    }, 500);
-    return () => clearTimeout(saveTimer.current);
-  }, [folders, datasets]);
+
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -755,8 +771,10 @@ export default function App() {
                 onChange={(updater) => updateDataset(activeDataset.id, updater)}
                 fileInputRef={fileInputRef}
                 onDelete={() => {
-                  setDatasets(prev => prev.filter(d => d.id !== activeDataset.id));
-                  setActiveDatasetId(null);
+                  supabase.from("datasets").delete().eq("id", activeDataset.id).then(() => {
+                    setDatasets(prev => prev.filter(d => d.id !== activeDataset.id));
+                    setActiveDatasetId(null);
+                  });
                 }}
               />
             )}
