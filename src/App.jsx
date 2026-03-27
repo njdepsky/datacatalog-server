@@ -156,9 +156,11 @@ const styles = `
     --danger: #d47e7e;
   }
 
+  html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
+  #root { width: 100vw; height: 100vh; overflow: hidden; }
   body { background: var(--bg); color: var(--text); font-family: 'Source Serif 4', Georgia, serif; }
 
-  .app { display: flex; height: 100vh; overflow: hidden; }
+  .app { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
 
   /* SIDEBAR */
   .sidebar {
@@ -231,7 +233,7 @@ const styles = `
   .dataset-row-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
   /* MAIN */
-  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
 
   /* SEARCH BAR */
   .search-bar-wrap {
