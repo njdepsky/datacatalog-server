@@ -272,7 +272,7 @@ const styles = `
   .search-empty { padding: 0.8rem 1rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--text-dim); }
 
   /* CONTENT */
-  .content { flex: 1; overflow-y: auto; }
+  .content { flex: 1; overflow-y: auto; width: 100%; }
   .content::-webkit-scrollbar { width: 6px; }
   .content::-webkit-scrollbar-track { background: transparent; }
   .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -286,7 +286,7 @@ const styles = `
   .empty-state p { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; text-align: center; max-width: 300px; line-height: 1.6; }
 
   /* DATASET PAGE */
-  .dataset-page { padding: 2.5rem 3rem; max-width: 100%; }
+  .dataset-page { padding: 2.5rem 3rem; width: 100%; box-sizing: border-box; }
 
   .page-header { margin-bottom: 2rem; }
   .page-tag {
@@ -317,7 +317,7 @@ const styles = `
 
   .page-subtitle {
     font-size: 1rem; color: var(--text-dim); font-style: italic;
-    font-weight: 300; line-height: 1.4;
+    font-weight: 300; line-height: 1.4; text-align: left;
   }
   .page-subtitle input {
     width: 100%; background: var(--surface2); border: 1px solid var(--border);
@@ -393,7 +393,7 @@ const styles = `
   /* NOTES */
   .notes-area {
     font-size: 0.9rem; line-height: 1.8; color: var(--text);
-    min-height: 200px;
+    min-height: 200px; text-align: left;
   }
   .notes-rendered { cursor: pointer; }
   .notes-rendered:hover { outline: 1px dashed var(--border); border-radius: 5px; padding: 0.5rem; margin: -0.5rem; }
@@ -451,6 +451,59 @@ const styles = `
   }
   .screenshot-add:hover { border-color: var(--accent); color: var(--accent); }
 
+  /* LIGHTBOX */
+  .lightbox-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2000; cursor: zoom-out;
+  }
+  .lightbox-img { max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 6px; cursor: default; }
+  .lightbox-nav {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+    width: 44px; height: 44px; color: white; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s; font-size: 1.2rem;
+  }
+  .lightbox-nav:hover { background: rgba(255,255,255,0.2); }
+  .lightbox-prev { left: 1.5rem; }
+  .lightbox-next { right: 1.5rem; }
+  .lightbox-close {
+    position: fixed; top: 1rem; right: 1rem;
+    background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+    width: 36px; height: 36px; color: white; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+  .lightbox-counter { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+
+  /* RICH TEXT TOOLBAR */
+  .notes-toolbar {
+    display: flex; gap: 2px; padding: 0.4rem 0.5rem;
+    background: var(--surface3); border: 1px solid var(--border);
+    border-bottom: none; border-radius: 6px 6px 0 0;
+    flex-wrap: wrap;
+  }
+  .toolbar-btn {
+    background: none; border: 1px solid transparent; border-radius: 4px;
+    color: var(--text-dim); padding: 0.2rem 0.45rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+    cursor: pointer; transition: all 0.12s; min-width: 28px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .toolbar-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border); }
+  .toolbar-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .toolbar-divider { width: 1px; background: var(--border); margin: 2px 4px; }
+  .notes-editor {
+    width: 100%; min-height: 300px;
+    background: var(--surface2); border: 1px solid var(--accent);
+    border-radius: 0 0 6px 6px; color: var(--text);
+    font-size: 0.88rem; line-height: 1.7; font-family: 'Source Serif 4', serif;
+    padding: 0.8rem 1rem; outline: none;
+  }
+  .notes-editor:focus { outline: none; }
+
   /* MODAL */
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.6);
@@ -486,12 +539,12 @@ const styles = `
   }
   .btn-ghost:hover { color: var(--text); border-color: var(--text-dim); }
 
-  .meta-row { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: var(--text-dim); display: flex; gap: 1.5rem; margin-top: 1rem; }
+  .meta-row { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: var(--text-dim); display: flex; gap: 1.5rem; margin-top: 1rem; justify-content: flex-start; }
 
   .page-description {
     font-size: 0.9rem; line-height: 1.75; color: var(--text);
     font-weight: 300; margin-top: 1.2rem;
-    font-family: 'Source Serif 4', serif;
+    font-family: 'Source Serif 4', serif; text-align: left;
   }
   .page-description textarea {
     width: 100%; background: var(--surface2); border: 1px solid var(--accent);
@@ -557,6 +610,7 @@ export default function App() {
           subtitle: ds.subtitle, description: ds.description,
           attributes: ds.attributes, links: ds.links,
           notes: ds.notes, tags: ds.tags,
+          screenshots: ds.screenshots || [],
           created_at: ds.createdAt, updated_at: ds.updatedAt,
         }).then(({ error }) => {
           if (error) { console.error("Save error:", error); setServerStatus("error"); }
@@ -616,6 +670,7 @@ export default function App() {
           subtitle: d.subtitle || "", description: d.description || "",
           attributes: d.attributes || {}, links: d.links || [],
           notes: d.notes || "", tags: d.tags || [],
+          screenshots: d.screenshots || [],
           createdAt: d.created_at, updatedAt: d.updated_at,
         }));
         setFolders(loadedFolders);
@@ -822,18 +877,94 @@ export default function App() {
   );
 }
 
+// ─── RICH NOTES EDITOR ────────────────────────────────────────────────────────
+function RichNotesEditor({ value, onChange, onBlur }) {
+  const editorRef = useRef(null);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (editorRef.current && isFirstRender.current) {
+      editorRef.current.innerHTML = renderMarkdown(value);
+      isFirstRender.current = false;
+    }
+  }, []);
+
+  const exec = (cmd, val = null) => {
+    editorRef.current.focus();
+    document.execCommand(cmd, false, val);
+    handleChange();
+  };
+
+  const handleChange = () => {
+    if (editorRef.current) onChange(editorRef.current.innerHTML);
+  };
+
+  const toolbarButtons = [
+    { label: "B", cmd: "bold", style: { fontWeight: "bold" } },
+    { label: "I", cmd: "italic", style: { fontStyle: "italic" } },
+    { label: "U", cmd: "underline", style: { textDecoration: "underline" } },
+    null, // divider
+    { label: "H2", cmd: "formatBlock", val: "h2" },
+    { label: "H3", cmd: "formatBlock", val: "h3" },
+    null,
+    { label: "• List", cmd: "insertUnorderedList" },
+    { label: "1. List", cmd: "insertOrderedList" },
+    null,
+    { label: "Link", cmd: "createLink", prompt: true },
+    { label: "¶", cmd: "formatBlock", val: "p", title: "Paragraph" },
+  ];
+
+  return (
+    <div>
+      <div className="notes-toolbar">
+        {toolbarButtons.map((btn, i) =>
+          btn === null ? <div key={i} className="toolbar-divider" /> :
+          <button
+            key={i}
+            className="toolbar-btn"
+            title={btn.title || btn.label}
+            style={btn.style}
+            onMouseDown={e => {
+              e.preventDefault();
+              if (btn.prompt) {
+                const url = window.prompt("URL:");
+                if (url) exec(btn.cmd, url);
+              } else {
+                exec(btn.cmd, btn.val || null);
+              }
+            }}
+          >{btn.label}</button>
+        )}
+      </div>
+      <div
+        ref={editorRef}
+        className="notes-editor"
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleChange}
+        onBlur={onBlur}
+        style={{
+          minHeight: 300,
+          fontFamily: "'Source Serif 4', serif",
+        }}
+      />
+    </div>
+  );
+}
+
 // ─── DATASET PAGE ─────────────────────────────────────────────────────────────
 function DatasetPage({ dataset, folder, onChange, fileInputRef, onDelete }) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
+  const [lightbox, setLightbox] = useState(null); // index of open image
   const [editingNotes, setEditingNotes] = useState(false);
   const [editingAttrs, setEditingAttrs] = useState(false);
   const [editingLinks, setEditingLinks] = useState(false);
   const [newLinkLabel, setNewLinkLabel] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
   const [newTag, setNewTag] = useState("");
-  const [screenshots, setScreenshots] = useState([]);
+  // screenshots stored in dataset via onChange
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const attrKeys = [
@@ -864,7 +995,10 @@ function DatasetPage({ dataset, folder, onChange, fileInputRef, onDelete }) {
       const files = Array.from(e.target.files);
       files.forEach(f => {
         const reader = new FileReader();
-        reader.onload = ev => setScreenshots(prev => [...prev, { id: Date.now() + Math.random(), src: ev.target.result, name: f.name }]);
+        reader.onload = ev => {
+          const newShot = { id: Date.now() + Math.random(), src: ev.target.result, name: f.name };
+          onChange(ds => ({ ...ds, screenshots: [...(ds.screenshots || []), newShot] }));
+        };
         reader.readAsDataURL(f);
       });
       input.value = "";
@@ -1046,11 +1180,11 @@ function DatasetPage({ dataset, folder, onChange, fileInputRef, onDelete }) {
           </button>
         </div>
         {editingNotes ? (
-          <>
-            <textarea className="notes-textarea" value={dataset.notes}
-              onChange={e => onChange(ds => ({ ...ds, notes: e.target.value }))} />
-            <div className="notes-hint">Supports Markdown: ## Heading, **bold**, `code`</div>
-          </>
+          <RichNotesEditor
+            value={dataset.notes}
+            onChange={val => onChange(ds => ({ ...ds, notes: val }))}
+            onBlur={() => setEditingNotes(false)}
+          />
         ) : (
           <div className="notes-area notes-rendered" onClick={() => setEditingNotes(true)}
             dangerouslySetInnerHTML={{ __html: renderMarkdown(dataset.notes) }} />
@@ -1063,10 +1197,10 @@ function DatasetPage({ dataset, folder, onChange, fileInputRef, onDelete }) {
       <div style={{ marginBottom: "2.5rem" }}>
         <div className="section-label"><Icon name="image" size={12} /> Screenshots & Figures</div>
         <div className="screenshots-grid">
-          {screenshots.map(s => (
-            <div key={s.id} className="screenshot-item">
+          {(dataset.screenshots || []).map((s, idx) => (
+            <div key={s.id} className="screenshot-item" onClick={() => setLightbox(idx)}>
               <img src={s.src} alt={s.name} />
-              <button className="screenshot-remove" onClick={() => setScreenshots(prev => prev.filter(x => x.id !== s.id))}>
+              <button className="screenshot-remove" onClick={e => { e.stopPropagation(); onChange(ds => ({ ...ds, screenshots: (ds.screenshots || []).filter(x => x.id !== s.id) })); }}>
                 <Icon name="x" size={10} />
               </button>
             </div>
@@ -1077,6 +1211,19 @@ function DatasetPage({ dataset, folder, onChange, fileInputRef, onDelete }) {
           </div>
         </div>
       </div>
+
+      {/* LIGHTBOX */}
+      {lightbox !== null && (dataset.screenshots || []).length > 0 && (
+        <div className="lightbox-overlay" onClick={() => setLightbox(null)}>
+          <button className="lightbox-close" onClick={() => setLightbox(null)}><Icon name="x" size={14} /></button>
+          <img className="lightbox-img" src={(dataset.screenshots || [])[lightbox]?.src} alt="" onClick={e => e.stopPropagation()} />
+          {(dataset.screenshots || []).length > 1 && <>
+            <button className="lightbox-nav lightbox-prev" onClick={e => { e.stopPropagation(); setLightbox(i => (i - 1 + (dataset.screenshots || []).length) % (dataset.screenshots || []).length); }}>‹</button>
+            <button className="lightbox-nav lightbox-next" onClick={e => { e.stopPropagation(); setLightbox(i => (i + 1) % (dataset.screenshots || []).length); }}>›</button>
+            <div className="lightbox-counter">{lightbox + 1} / {(dataset.screenshots || []).length}</div>
+          </>}
+        </div>
+      )}
 
       {/* DELETE CONFIRM */}
       {confirmDelete && (
